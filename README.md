@@ -71,12 +71,13 @@ screenshots, or API responses. `.env*` is ignored by Git except for the empty
 ## Deploy the web app to Netlify
 
 The repository includes a root `netlify.toml` for the pnpm monorepo. It builds
-only `apps/web`, publishes the Next.js output, uses Node 22, and enables the
+only `apps/web`, publishes the Next.js output, uses Node 24, and enables the
 pnpm hoisting mode required by Netlify's Next.js runtime.
 
 1. Import the GitHub repository in Netlify. If Netlify asks which monorepo app
-   to deploy, choose `apps/web`. Leave the base directory unset so dependency
-   installation and the build run from the repository root.
+   to deploy, choose `apps/web`. In **Build settings**, use `/` (or leave the
+   field empty) for the base directory and `apps/web` for the package directory.
+   The root `netlify.toml` also forces the build base back to the workspace root.
 2. Keep the build command and publish directory from `netlify.toml`:
 
    ```text

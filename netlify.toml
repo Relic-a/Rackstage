@@ -1,7 +1,12 @@
 [build]
+  # Override an accidentally selected app directory in Netlify's monorepo UI.
+  # Dependencies and the filtered web build must run from the workspace root.
+  base = "."
   command = "pnpm --filter @rackstage/web build"
   publish = "apps/web/.next"
 
 [build.environment]
-  NODE_VERSION = "22.13.1"
+  # Node 22.13.1 bundles an obsolete Corepack signing-key set that cannot
+  # verify current pnpm releases. Node 24 also matches the verified local build.
+  NODE_VERSION = "24.18.0"
   PNPM_FLAGS = "--shamefully-hoist"
