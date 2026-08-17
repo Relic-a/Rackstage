@@ -9,6 +9,7 @@ import { ItemStatusActions } from "../../components/item-status-actions";
 import { ensureClerkProfile } from "../../lib/clerk-server";
 import { storesForUser } from "../../lib/seller";
 import { catalogImageFor, findSellerItems, itemState } from "../../lib/supabase-server";
+import { createCaptureToken } from "../../lib/capture-token";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,8 @@ export default async function SellerPage() {
   const forwardedHost = requestHeaders.get("x-forwarded-host") || requestHeaders.get("host");
   const forwardedProtocol = requestHeaders.get("x-forwarded-proto") || (forwardedHost?.includes("localhost") ? "http" : "https");
   const site = (process.env.NEXT_PUBLIC_SITE_URL || (forwardedHost ? `${forwardedProtocol}://${forwardedHost}` : "https://rackstage.netlify.app")).replace(/\/$/, "");
-  const qr = await QRCode.toDataURL(`${site}/seller/add`, { width: 360, margin: 1, color: { dark: "#201e1b", light: "#fffdf9" }, errorCorrectionLevel: "M" });
+  const captureUrl = `${site}/seller/capture/${createCaptureToken(store.id)}`;
+  const qr = await QRCode.toDataURL(captureUrl, { width: 360, margin: 1, color: { dark: "#201e1b", light: "#fffdf9" }, errorCorrectionLevel: "M" });
   const live = items.filter((item) => item.status === "available").length;
   const reserved = items.filter((item) => item.status === "reserved").length;
   const drafts = items.filter((item) => item.status === "draft" || item.status === "processing").length;
@@ -47,7 +49,7 @@ export default async function SellerPage() {
           <ItemStatusActions id={item.id} status={itemState(item)} />
         </article>)}</div> : <div className="seller-empty"><span>◇</span><h3>Your rack is ready.</h3><p>Add your first garment here, or scan the code from a phone.</p><Link className="button button-primary" href="/seller/add">Add first item</Link></div>}
       </div>
-      <aside className="dashboard-side"><div className="qr-card"><div className="eyebrow">Use any phone</div><h2>Scan to add inventory</h2><p>Open the camera on any phone and point it here. RackStage opens securely in the browser—nothing to install.</p><div className="qr-image"><img src={qr} alt="QR code that opens the add-item flow" /></div><small>Sign in with this seller account if the phone asks.</small></div><SellerSettings store={store} /></aside>
+      <aside className="dashboard-side"><div className="qr-card"><div className="eyebrow">Use any phone</div><h2>Scan to add inventory</h2><p>Open the camera on any phone and point it here. This private link opens the camera for this store only—nothing to install or sign in to.</p><div className="qr-image"><img src={qr} alt="Private QR code that opens this store's add-item flow" /></div><small>Treat this code like a staff key. Each link expires after 30 days.</small></div><SellerSettings store={store} /></aside>
     </section>
   </main>;
 }

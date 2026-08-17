@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { createBackgroundRemoval, describeYouCamError, garmentCategory } from "../../../../lib/youcam";
-import { acceptedImageType, currentUserId, imageDimensions, jsonError, parsePrice } from "../../../../lib/http";
+import { acceptedImageType, imageDimensions, jsonError, parsePrice } from "../../../../lib/http";
 import { findDraftByClientToken, findLatestJob, insertItem, insertItemImage, insertJob, storageBucket, storageDelete, storageUpload, updateItem, updateJob } from "../../../../lib/supabase-server";
 import { ownedStore } from "../../../../lib/seller";
 import type { ItemRecord, ProcessingJobRecord } from "../../../../lib/types";
@@ -15,8 +15,6 @@ function text(form: FormData, key: string, max = 200) {
 }
 
 export async function POST(request: Request) {
-  const userId = await currentUserId(request);
-  if (!userId) return jsonError("Sign in before adding a garment.", 401, "UNAUTHENTICATED");
   const form = await request.formData().catch(() => null);
   if (!form) return jsonError("Send the garment photo as multipart form data.", 400, "INVALID_FORM");
   const original = (form.get("original") ?? form.get("photo")) as File | null;

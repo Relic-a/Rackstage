@@ -15,10 +15,10 @@ async function logoFor(store: StoreRecord) {
 
 export async function generateMetadata({ params }: { params: { storeSlug: string } }): Promise<Metadata> {
   const store = await findStoreBySlug(params.storeSlug).catch(() => null);
-  if (!store) return { title: "Store not found — RackStage" };
-  const description = `One-of-one pieces from ${store.name}. Visual try-on and pickup reservation on RackStage.`;
+  if (!store) return { title: "Store not found" };
+  const description = `Shop the latest one-of-one pieces from ${store.name}.`;
   const logo = await logoFor(store);
-  return { title: `${store.name} — RackStage`, description, openGraph: { title: store.name, description, images: logo ? [{ url: logo }] : undefined } };
+  return { title: store.name, description, openGraph: { title: store.name, description, images: logo ? [{ url: logo }] : undefined } };
 }
 
 export default async function StorePage({ params }: { params: { storeSlug: string } }) {
@@ -30,13 +30,13 @@ export default async function StorePage({ params }: { params: { storeSlug: strin
   const logo = await logoFor(store);
   const color = store.brand_color && /^#[0-9a-f]{6}$/i.test(store.brand_color) ? store.brand_color : "#e26b45";
   return <>
-    <header className="topbar"><div className="shell topbar-inner"><Link className="wordmark" href="/"><span className="wordmark-mark" style={{ backgroundColor: color }}>R</span><span>RackStage</span></Link><span className="soft-link">One-of-one, online</span></div></header>
-    <main className="shell" style={{ ["--accent" as string]: color } as CSSProperties}>
+    <main className="storefront shell" style={{ ["--accent" as string]: color } as CSSProperties}>
+      <nav className="storefront-nav" aria-label={`${store.name} navigation`}><Link className="storefront-brand" href={`/store/${store.slug}`}>{logo ? <img src={logo} alt="" /> : <span style={{ backgroundColor: color }}>{store.name.slice(0, 1).toUpperCase()}</span>}<strong>{store.name}</strong></Link><a href="#shop">Shop the rack</a></nav>
       <section className="store-head">
-        <div><div className="eyebrow">Independent vintage</div><h1 className="display">{store.name}</h1><p className="store-meta">{store.pickup_instructions || "Browse the current rack. Every piece is one of one and available for pickup."}</p></div>
+        <div><div className="eyebrow">Current collection</div><h1 className="display">Find your next favorite.</h1><p className="store-meta">{store.pickup_instructions || "Browse the current rack. Every piece is one of one and available for pickup."}</p></div>
         <div className="store-logo" aria-label={store.name}>{logo ? <img src={logo} alt="" /> : store.name.slice(0, 1).toUpperCase()}</div>
       </section>
-      <div className="inventory-bar"><span className="inventory-count">{items.length} {items.length === 1 ? "piece" : "pieces"} on the rack</span><span>Updated as items move</span></div>
+      <div className="inventory-bar" id="shop"><span className="inventory-count">{items.length} {items.length === 1 ? "piece" : "pieces"} on the rack</span><span>One of one · Store pickup</span></div>
       {items.length === 0 ? <div className="empty"><h2 className="display">The rack is between drops.</h2><p>Check back soon for the next one-of-one piece.</p></div> : <section className="item-grid" aria-label={`${store.name} inventory`}>{items.map((item) => {
         const state = itemState(item); const image = imageById.get(item.id) ?? null; const label = state === "available" ? "Available" : state === "reserved" ? "Reserved" : "Sold";
         return <Link className="item-card" href={`/store/${store.slug}/item/${item.id}`} key={item.id}>
@@ -45,6 +45,6 @@ export default async function StorePage({ params }: { params: { storeSlug: strin
         </Link>;
       })}</section>}
     </main>
-    <footer className="footer"><div className="shell">Visual try-on is a style preview, not a fit guarantee.</div></footer>
+    <footer className="footer storefront-footer"><div className="shell"><strong>{store.name}</strong><span>One-of-one pieces, updated as they move.</span></div></footer>
   </>;
 }

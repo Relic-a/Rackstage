@@ -137,10 +137,10 @@ API, clear the session paths, and let a later call remove old expired markers.
 Sellers can complete the core setup and inventory workflow entirely from the
 deployed web app. Open `/seller` to create a storefront, edit its identity and
 pickup details, see inventory status, and publish or manage items. The dashboard
-also displays a QR code for `/seller/add`; scanning it with any phone opens a
-browser camera flow and does not require the Expo app. The seller signs into the
-same Clerk account on a new phone, so access remains owner-only. The Expo app
-continues to use the existing APIs and remains fully supported.
+also displays a private, store-scoped QR code; scanning it with any phone opens
+the browser camera and does not require the Expo app or another sign-in. Each
+unguessable, signed staff link expires after 30 days and cannot be edited to
+target another store. The Expo app remains fully supported.
 
 1. Open the Expo seller app and continue through Clerk's hosted sign-in flow.
 2. Enter a store name, accept or edit the suggested slug, and optionally add a
