@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "RackStage",
+    "slug": "rackstage",
+    "scheme": "rackstage",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "RackStage uses your camera to photograph one-of-one garments."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "RackStage uses a logo image you choose for your storefront."
+        }
+      ],
+      "expo-router",
+      "expo-secure-store",
+      "@clerk/expo"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rackstage.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F6F3EE"
+      },
+      "package": "com.rackstage.mobile"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}

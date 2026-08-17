@@ -1,0 +1,34 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies and generated TypeScript/Next/Expo output
+node_modules/
+node_modules-broken/
+.pnpm-store*/
+.corepack/
+dist/
+build/
+.next/
+.expo/
+.expo-home/
+.netlify/
+coverage/
+*.tsbuildinfo
+
+# Local logs and OS/editor files
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# The YouCam experiment is source/documentation plus local generated artifacts.
+# Keep response JSON and downloaded results out of commits (presigned URLs and
+# task metadata must never become repository artifacts).
+youcam-lowerbody-test/responses/
+youcam-lowerbody-test/outputs/

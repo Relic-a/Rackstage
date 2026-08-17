@@ -1,0 +1,7 @@
+[build]
+  command = "pnpm --filter @rackstage/web build"
+  publish = "apps/web/.next"
+
+[build.environment]
+  NODE_VERSION = "22.13.1"
+  PNPM_FLAGS = "--shamefully-hoist"

@@ -1,0 +1,22 @@
+{
+  "name": "rackstage",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.12.4",
+  "scripts": {
+    "dev:web": "pnpm --filter @rackstage/web dev",
+    "dev:mobile": "node --env-file=.env apps/mobile/node_modules/expo/bin/cli start apps/mobile",
+    "build:web": "pnpm --filter @rackstage/web build",
+    "typecheck:web": "pnpm --filter @rackstage/web typecheck",
+    "typecheck:mobile": "pnpm --filter @rackstage/mobile typecheck",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:e2e:live": "node --env-file=.env scripts/live-api-e2e.mjs",
+    "lint": "pnpm -r lint",
+    "build": "pnpm -r build"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
