@@ -10,3 +10,9 @@
   # verify current pnpm releases. Node 24 also matches the verified local build.
   NODE_VERSION = "24.18.0"
   PNPM_FLAGS = "--shamefully-hoist"
+
+# Netlify's automatic framework detection can miss Next.js in this pnpm
+# monorepo. Declare the adapter explicitly so SSR routes and API handlers are
+# converted into Netlify functions instead of publishing the raw .next files.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
