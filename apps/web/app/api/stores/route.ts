@@ -72,3 +72,34 @@ export async function GET(request: Request) {
   const stores = await storesForUser(userId);
   return NextResponse.json({ stores });
 }
+
+export async function PATCH(request: Request) {
+  const userId = await currentUserId(request);
+  if (!userId) return jsonError("Sign in to update your store.", 401, "UNAUTHENTICATED");
+  const body = await readJson(request);
+  const storeId = typeof body?.id === "string" ? body.id : "";
+  const stores = await storesForUser(userId);
+  const current = stores.find((store) => store.id === storeId) ?? stores[0];
+  if (!current) return jsonError("Store not found.", 404, "STORE_NOT_FOUND");
+  const values: Partial<StoreRecord> = {};
+  if (typeof body?.name === "string") {
+    const name = body.name.trim().slice(0, 100);
+    if (!name) return jsonError("Enter a store name.", 422, "STORE_NAME_REQUIRED");
+    values.name = name;
+  }
+  if (typeof body?.brand_color === "string") {
+    if (!/^#[0-9a-f]{6}$/i.test(body.brand_color)) return jsonError("Choose a valid brand color.", 422, "INVALID_BRAND_COLOR");
+    values.brand_color = body.brand_color;
+  }
+  if (typeof body?.pickup_instructions === "string") values.pickup_instructions = body.pickup_instructions.trim().slice(0, 500) || null;
+  if (typeof body?.is_public === "boolean") values.is_public = body.is_public;
+  try {
+    const rows = await supabaseRest<StoreRecord[]>(`stores?id=eq.${encodeURIComponent(current.id)}&owner_id=eq.${encodeURIComponent(userId)}`, { method: "PATCH", prefer: "return=representation", body: values });
+    const store = rows[0];
+    if (!store) return jsonError("Store not found.", 404, "STORE_NOT_FOUND");
+    const origin = process.env.NEXT_PUBLIC_SITE_URL ?? request.headers.get("origin") ?? new URL(request.url).origin;
+    return NextResponse.json({ store: { ...store, public_url: `${origin.replace(/\/$/, "")}/store/${store.slug}` } });
+  } catch {
+    return jsonError("Your store changes could not be saved.", 503, "STORE_UPDATE_FAILED");
+  }
+}

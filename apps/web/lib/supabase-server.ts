@@ -150,6 +150,10 @@ export async function findItem(itemId: string): Promise<ItemRecord | null> {
   return rows[0] ?? null;
 }
 
+export async function findSellerItems(storeId: string): Promise<ItemRecord[]> {
+  return supabaseRest<ItemRecord[]>(`items?store_id=eq.${encodeURIComponent(storeId)}&select=*&order=created_at.desc`);
+}
+
 export async function findDraftByClientToken(storeId: string, token: string): Promise<ItemRecord | null> {
   const rows = await supabaseRest<ItemRecord[]>(`items?store_id=eq.${encodeURIComponent(storeId)}&client_request_token=eq.${encodeURIComponent(token)}&select=*&limit=1`);
   return rows[0] ?? null;

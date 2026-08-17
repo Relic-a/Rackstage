@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { describeYouCamError, pollBackgroundRemoval } from "../../../../lib/youcam";
-import { imageDimensions, jsonError } from "../../../../lib/http";
+import { imageDimensions, jsonError, parsePrice, readJson } from "../../../../lib/http";
 import { catalogImageFor, findItemImage, findLatestJob, storageBucket, storageUpload, updateItem, updateJob, upsertItemImage } from "../../../../lib/supabase-server";
 import { ownedItem } from "../../../../lib/seller";
 
@@ -37,4 +37,28 @@ export async function GET(request: Request, { params }: { params: { itemId: stri
   const [catalog] = await Promise.all([findItemImage(owned.item.id, "catalog").catch(() => null)]);
   const catalogImageUrl = catalog ? await catalogImageFor(owned.item.id) : null;
   return NextResponse.json({ item: { ...owned.item, state: owned.item.status, catalog_image_url: catalogImageUrl }, job });
+}
+
+export async function PATCH(request: Request, { params }: { params: { itemId: string } }) {
+  const owned = await ownedItem(request, params.itemId);
+  if (!owned) return jsonError("You do not have access to this item.", 403, "FORBIDDEN");
+  const body = await readJson(request);
+  const patch: Record<string, unknown> = {};
+  for (const key of ["category", "size", "brand", "condition", "notes"] as const) {
+    if (typeof body?.[key] === "string") patch[key] = body[key].trim().slice(0, key === "notes" ? 1000 : 160) || null;
+  }
+  if (body && Object.prototype.hasOwnProperty.call(body, "price")) {
+    const price = parsePrice(body.price);
+    if (price === null) return jsonError("Enter a valid price.", 422, "INVALID_PRICE");
+    patch.price = price;
+  }
+  if (typeof body?.status === "string") {
+    const allowed = owned.item.status === "available" ? ["sold", "archived"] : owned.item.status === "reserved" ? ["available", "sold"] : owned.item.status === "sold" ? ["available", "archived"] : ["archived"];
+    if (!allowed.includes(body.status)) return jsonError("That status change is not available.", 409, "INVALID_STATUS_CHANGE");
+    patch.status = body.status;
+    if (body.status === "available") patch.reserved_until = null;
+  }
+  const updated = await updateItem(owned.item.id, patch);
+  if (!updated) return jsonError("The item could not be updated.", 503, "ITEM_UPDATE_FAILED");
+  return NextResponse.json({ item: { ...updated, state: updated.status } });
 }

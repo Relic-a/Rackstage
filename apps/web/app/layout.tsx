@@ -21,7 +21,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <SignInButton mode="modal"><button className="auth-link" type="button">Sign in</button></SignInButton>
                 <SignUpButton mode="modal"><button className="auth-button" type="button">Create account</button></SignUpButton>
               </SignedOut>
-              <SignedIn><UserButton afterSignOutUrl="/" /></SignedIn>
+              <SignedIn><Link className="auth-link dashboard-link" href="/seller">Dashboard</Link><UserButton afterSignOutUrl="/" /></SignedIn>
             </nav>
           </div>
         </header>
